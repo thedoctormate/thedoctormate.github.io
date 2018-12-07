@@ -86,6 +86,7 @@
 	  var scheme = getScheme(playerCount);
 	  shards = shards + scheme.Sshards;
 	  bystandersCheck = bystandersCheck + scheme.bystandersScheme;
+	  villainGroupsNo = villainGroupsNo + scheme.needsVillainGroups;
 	  henchmenGroupsNo = henchmenGroupsNo + scheme.needsHenchemenGroups;
 	  heroDecksNo = heroDecksNo + scheme.needsHeroDecks;
 	  
@@ -197,6 +198,10 @@
 		  //if not, random
 		  else{
 		    newHenchmen = getHenchmenGroup();
+			//check for banned henchmen
+			if (newHenchmen.henchmenName == scheme.bannedHenchmen){
+			  continue doLoopHenchmen;
+			}
 			henchmenGroups[henchCountUp] = newHenchmen.henchmenName;
 			henchmenGCount = henchmenGCount - 1;
 		  }
@@ -204,8 +209,8 @@
 		//second henchmen should be alwaysLeads if not already used
 		else if (henchCountUp == 1){
 		  if (mastermind.alwaysLeadsType == "h"){
-		    //check for duplicate
-			if (mastermind.alwaysLeads == henchmenGroups[0]){
+		    //check for duplicate or banned
+			if (mastermind.alwaysLeads == henchmenGroups[0] || mastermind.alwaysLeads == scheme.bannedHenchmen){
 			  mastermind.alwaysLeads = "0";
 			  continue doLoopHenchmen;
 			}
@@ -218,8 +223,8 @@
 		  //random group
 		  else{
 		    newHenchmen = getHenchmenGroup();
-			//check for duplicate
-			if (newHenchmen.henchmenName == henchmenGroups[0]){
+			//check for duplicate or banned
+			if (newHenchmen.henchmenName == henchmenGroups[0] || newHenchmen.henchmenName == scheme.bannedHenchmen){
 			  continue doLoopHenchmen;
 			}
 		    henchmenGroups[henchCountUp] = newHenchmen.henchmenName;
@@ -229,9 +234,9 @@
 		//final henchmen assigner, which will be run until all HGs are selected
 		else{
 		  newHenchmen = getHenchmenGroup();
-		  //check for duplicate
+		  //check for duplicate or banned
 		  for (var i = 0; i < henchCountUp; i++){
-		    if (newHenchmen.henchmenName == henchmenGroups[i]){
+		    if (newHenchmen.henchmenName == henchmenGroups[i] || newHenchmen.henchmenName == scheme.bannedHenchmen){
 			  continue doLoopHenchmen;
 			}
 		  }
@@ -271,6 +276,10 @@
 		  //if not, random
 		  else{
 		    newHero = getHeroes();
+			//check for banned heroes
+			if (newHero.heroName == scheme.bannedHero){
+			  continue doLoopHeroes;
+			}
 			heroDecks[heroCountUp] = newHero.heroName;
 			shards = shards + newHero.HeroShards;
 			heroDCount = heroDCount - 1;
@@ -279,9 +288,9 @@
 		//final hero assigner, which will be run until all HDs are selected
 		else{
 		  newHero = getHeroes();
-		  //check for duplicate
+		  //check for duplicate or banned heroes
 		  for (var i = 0; i < heroCountUp; i++){
-		    if (newHero.heroName == heroDecks[i]){
+		    if (newHero.heroName == heroDecks[i] || newHero.heroName == scheme.bannedHero){
 			  continue doLoopHeroes;
 			}
 		  }
@@ -339,7 +348,12 @@
 	  document.write("- Add " + masterStrikes + " Master Strikes to the Villain Deck.<br>");
 	  
 	  //villain groups
-	  document.write("- The Villain Groups for this game are ");
+	  if (villainGroupsNo == 1){
+	    document.write("- The Villain Group for this game is ");
+      }
+	  else{
+	    document.write("- The Villain Groups for this game are ");
+	  }
 	  for (var i = 0; i < villainGroups.length; i++){
 	    if (i == villainGroups.length - 1){
 		  document.write(villainGroups[i] + ".<br>");
@@ -353,7 +367,12 @@
 	  }
 	  
 	  //henchmen groups
-	  document.write("- The Henchmen Groups for this game are ");
+	  if (henchmenGroupsNo == 1){
+	    document.write("- The Henchmen Group for this game is ");
+	  }
+	  else{
+	    document.write("- The Henchmen Groups for this game are ");
+	  }
 	  for (var i = 0; i < henchmenGroups.length; i++){
 	    if (i == henchmenGroups.length - 1){
 		  document.write(henchmenGroups[i] + ".<br>");
@@ -434,7 +453,7 @@
 	  
 	  //gets the random mastermind
 	  function getMastermind(){
-	    var mastermindNum = getRndInteger(1, 4);
+	    var mastermindNum = getRndInteger(1, 11);
 		
 		var mastermindName;
 		var alwaysLeads;
@@ -466,10 +485,45 @@
 		}
 		
 		//dark city masterminds
+		else if (mastermindNum == 5){
+		  mastermindName = "Apocalypse";
+		  alwaysLeads = "Four Horsemen";
+		  alwaysLeadsType = "v";
+		}
+		else if (mastermindNum == 6){
+		  mastermindName = "Kingpin";
+		  alwaysLeads = "Streets of New York";
+		  alwaysLeadsType = "v";
+		}
+		else if (mastermindNum == 7){
+		  mastermindName = "Mephisto";
+		  alwaysLeads = "Underworld";
+		  alwaysLeadsType = "v";
+		}
+		else if (mastermindNum == 8){
+		  mastermindName = "Mr. Sinister";
+		  alwaysLeads = "Marauders";
+		  alwaysLeadsType = "v";
+		}
+		else if (mastermindNum == 9){
+		  mastermindName = "Stryfe";
+		  alwaysLeads = "MLF";
+		  alwaysLeadsType = "v";
+		}
 		
 		//fantastic four masterminds
 		
 		//paint the town red masterminds
+		else if (mastermindNum == 10){
+		  mastermindName = "Carnage";
+		  alwaysLeads = "Maximum Carnage";
+		  alwaysLeadsType = "v";
+		}
+		else if (mastermindNum == 11){
+		  mastermindName = "Mysterio";
+		  alwaysLeads = "Sinister Six";
+		  alwaysLeadsType = "v";
+		}
 		
 		//villains masterminds
 		
@@ -519,7 +573,7 @@
 	
 	  //gets the random scheme
 	  function getScheme(playerCount){
-	    var schemeNum = getRndInteger(1, 8);
+	    var schemeNum = getRndInteger(1, 20);
 		
 		var schemeName;
 		var schemeTwists;
@@ -537,6 +591,9 @@
 		
 		var schemeHero = 0; //needs a specific hero deck
 		var schemeHeroName;
+		
+		var bannedHero = "0"; //bans a specific hero from the hero deck
+		var bannedHenchmen = "0"; //bans a specific henchmen group from the villain deck
 		
 		//base game schemes
 		if (schemeNum == 1){
@@ -591,10 +648,82 @@
 		}
 		
 		//dark city schemes
+		else if (schemeNum == 9){
+		  schemeName = "Capture Baby Hope";
+		  schemeTwists = 8;
+		  schemeRules = "Put a token on this Scheme to represent the baby, Hope Summers.";
+		}
+		else if (schemeNum == 10){
+		  schemeName = "Detonate the Helicarrier";
+		  schemeTwists = 8;
+		  needsHeroDecks = 1;
+		}
+		else if (schemeNum == 11){
+		  schemeName = "Massive Earthquake Generator";
+		  schemeTwists = 8;
+		}
+		else if (schemeNum == 12){
+		  schemeName = "Organized Crimewave";
+		  schemeTwists = 8;
+		  schemeVillainGroup = "Maggia Goons";
+		  schemeVillainType = "h";
+		}
+		else if (schemeNum == 13){
+		  schemeName = "Save Humanity";
+		  schemeTwists = 8;
+		  bystandersScheme = 1;
+		  if (playerCount == 1){
+		    schemeRules = "Add 12 total Bystanders to the Villain Deck.";
+		  }
+		  else{
+		    schemeRules = "Add 24 total Bystanders to the Villain Deck.";
+		  }
+		}
+		else if (schemeNum == 14){
+		  schemeName = "Steal the Weaponized Plutonium";
+		  schemeTwists = 8;
+		  needsVillainGroups = 1;
+		}
+		else if (schemeNum == 15){
+		  schemeName = "Transform Citizens into Demons";
+		  schemeTwists = 8;
+		  bystandersScheme = 1;
+		  bannedHero = "Jean Grey";
+		  schemeRules = "Add the 14 Jean Grey Hero cards to the Villain Deck. The Villain Deck includes no Bystanders.";
+		}
+		else if (schemeNum == 16){
+		  schemeName = "X-Cutioner's Song";
+		  schemeTwists = 8;
+		  bystandersScheme = 1;
+		  var tempHero = getHeroes();
+		  bannedHero = tempHero.heroName;
+		  schemeRules = "Add the 14 " + bannedHero + " Hero cards to the Villain Deck. The Villain Deck includes no Bystanders.";
+		}
 		
 		//fantastic four schemes
 		
 		//paint the town red schemes
+		else if (schemeNum == 17){
+		  schemeName = "The Clone Saga";
+		  schemeTwists = 8;
+		}
+		else if (schemeNum == 18){
+		  schemeName = "Invade the Daily Bugle News HQ";
+		  schemeTwists = 8;
+		  var tempHenchmen = getHenchmenGroup();
+		  bannedHenchmen = tempHenchmen.henchmenName;
+		  schemeRules = "Add 6 cards from the " + bannedHenchmen + " Henchmen Group to the Hero Deck.";
+		}
+		else if (schemeNum == 19){
+		  schemeName = "Splice Humans with Spider DNA";
+		  schemeTwists = 8;
+		  schemeVillainGroup = "Sinister Six";
+		  schemeVillainType = "v";
+		}
+		else if (schemeNum == 20){
+		  schemeName = "Weave a Web of Lies";
+		  schemeTwists = 7;
+		}
 		
 		//villains schemes
 		
@@ -646,13 +775,15 @@
           schemeVillainGroup: schemeVillainGroup,
           schemeVillainType: schemeVillainType,
           schemeHero: schemeHero,
-          schemeHeroName: schemeHeroName		  
+          schemeHeroName: schemeHeroName,
+          bannedHero: bannedHero,
+          bannedHenchmen: bannedHenchmen		  
 		};
 	  }
 	
 	  //gets the random villain groups
 	  function getVillainGroup(){
-	    var villainNum = getRndInteger(1, 7);
+	    var villainNum = getRndInteger(1, 15);
 		
 		var villainName;
 		
@@ -683,10 +814,34 @@
 		}
 		
 		//dark city villain groups
+		else if (villainNum == 8){
+		  villainName = "Emissaries of Evil";
+		}
+		else if (villainNum == 9){
+		  villainName = "Four Horsemen";
+		}
+		else if (villainNum == 10){
+		  villainName = "Marauders";
+		}
+		else if (villainNum == 11){
+		  villainName = "MLF";
+		}
+		else if (villainNum == 12){
+		  villainName = "Streets of New York";
+		}
+		else if (villainNum == 13){
+		  villainName = "Underworld";
+		}
 		
 		//fantastic four villain groups
 		
 		//paint the town red villain groups
+		else if (villainNum == 14){
+		  villainName = "Maximum Carnage";
+		}
+		else if (villainNum == 15){
+		  villainName = "Sinister Six";
+		}
 		
 		//villains villain groups
 		
@@ -734,7 +889,7 @@
 	
 	  //gets the random henchmen groups
 	  function getHenchmenGroup(){
-	    var henchmenNum = getRndInteger(1, 4);
+	    var henchmenNum = getRndInteger(1, 6);
 		
 		var henchmenName;
 		
@@ -753,10 +908,14 @@
 		}
 		
 		//dark city henchmen groups
+		else if (henchmenNum == 5){
+		  henchmenName = "Maggia Goons";
+		}
+		else if (henchmenNum == 6){
+		  henchmenName = "Phalanx";
+		}
 		
 		//fantastic four henchmen groups
-		
-		//paint the town red henchmen groups
 		
 		//villains henchmen groups
 		
@@ -803,7 +962,7 @@
 	
 	  //gets the random hero decks
 	  function getHeroes(){
-	    var heroNum = getRndInteger(1, 15);
+	    var heroNum = getRndInteger(1, 37);
 		
 		var heroName;
 		
@@ -858,10 +1017,76 @@
 		}
 		
 		//dark city hero decks
+		else if (heroNum == 16){
+		  heroName = "Angel";
+		}
+		else if (heroNum == 17){
+		  heroName = "Bishop";
+		}
+		else if (heroNum == 18){
+		  heroName = "Blade";
+		}
+		else if (heroNum == 19){
+		  heroName = "Cable";
+		}
+		else if (heroNum == 20){
+		  heroName = "Colossus";
+		}
+		else if (heroNum == 21){
+		  heroName = "Daredevil";
+		}
+		else if (heroNum == 22){
+		  heroName = "Domino";
+		}
+		else if (heroNum == 23){
+		  heroName = "Elektra";
+		}
+		else if (heroNum == 24){
+		  heroName = "Forge";
+		}
+		else if (heroNum == 25){
+		  heroName = "Ghost Rider";
+		}
+		else if (heroNum == 26){
+		  heroName = "Iceman";
+		}
+		else if (heroNum == 27){
+		  heroName = "Iron Fist";
+		}
+		else if (heroNum == 28){
+		  heroName = "Jean Grey";
+		}
+		else if (heroNum == 29){
+		  heroName = "Nightcrawler";
+		}
+		else if (heroNum == 30){
+		  heroName = "Professor X";
+		}
+		else if (heroNum == 31){
+		  heroName = "Punisher";
+		}
+		else if (heroNum == 32){
+		  heroName = "Wolverine (X-Force)";
+		}
 		
 		//fantastic four hero decks
 		
 		//paint the town red hero decks
+		else if (heroNum == 33){
+		  heroName = "Black Cat";
+		}
+		else if (heroNum == 34){
+		  heroName = "Moon Knight";
+		}
+		else if (heroNum == 35){
+		  heroName = "Scarlet Spider";
+		}
+		else if (heroNum == 36){
+		  heroName = "Spider-Woman";
+		}
+		else if (heroNum == 37){
+		  heroName = "Symbiote Spider-Man";
+		}
 		
 		//villains hero decks
 		
