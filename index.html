@@ -99,70 +99,47 @@
 	  //do loop for getting random villains, alwaysLeads, scheme villains, making sure there are no duplicates
 	  doLoopVillains:
       do{
-	    //first villain should be any scheme villain
-		if (vilCountUp == 0){
-		  if (scheme.schemeVillainType == "v"){
-		    villainGroups[vilCountUp] = scheme.schemeVillainGroup;
-			scheme.schemeVillainType = "0";
-		    villainGCount = villainGCount - 1;
-		  }
-		  //if not, should be alwaysLeads
-		  else if (mastermind.alwaysLeadsType == "v"){
-		    villainGroups[vilCountUp] = mastermind.alwaysLeads;
-			mastermind.alwaysLeadsType = "0";
-			villainGCount = villainGCount - 1;
-		  }
-		  //if not, random
-		  else{
-		    newVillain = getVillainGroup();
-			villainGroups[vilCountUp] = newVillain.villainName;
-			shards = shards + newVillain.Vshards;
-			villainGCount = villainGCount - 1;
-		  }
-		}
-		//second villain should be alwaysLeads if not already used
-		else if (vilCountUp == 1){
-		  if (mastermind.alwaysLeadsType == "v"){
-		    //check for duplicate
-			if (mastermind.alwaysLeads == villainGroups[0]){
-			  mastermind.alwaysLeadsType = "0";
-			  continue doLoopVillains;
-			}
-			else{
-			  villainGroups[vilCountUp] = mastermind.alwaysLeads;
-			  mastermind.alwaysLeads = "0";
-			  villainGCount = villainGCount - 1;
-			}
-		  }
-		  //random group
-		  else{
-		    newVillain = getVillainGroup();
-			//check for duplicate
-			if (newVillain.villainName == villainGroups[0]){
-			  continue doLoopVillains;
-			}
-		    villainGroups[vilCountUp] = newVillain.villainName;
-			shards = shards + newVillain.Vshards;
-			villainGCount = villainGCount - 1;
-		  }
-		}
-		//final villain assigner, which will be run until all VGs are selected
-		else{
+        //checks for any scheme villains and assigns those first
+        if (scheme.schemeVillainGroupNo > 0){
+	      for (var i = 0; i < scheme.schemeVillainGroupNo; i++){
+	        if (scheme.schemeVillainType[i] == "v"){
+		      villainGroups[vilCountUp] = scheme.schemeVillainGroup[i];
+		      vilCountUp = vilCountUp + 1;
+		      scheme.schemeVillainType[i] = "0";
+		      villainGCount = villainGCount - 1;
+		    }
+	      }
+	      scheme.schemeVillainGroupNo = 0;
+	    }
+	    //checks if alwaysLeads is a villain and assigns
+        else if (mastermind.alwaysLeadsType == "v"){
+	      //check for duplicate or banned
+	      for (var i = 0; i < vilCountUp; i++){
+	        if (mastermind.alwaysLeads == villainGroups[i] || mastermind.alwaysLeads == scheme.bannedVillain){
+	          mastermind.alwaysLeadsType = "0";
+		      continue doLoopVillains;
+	        }
+	      }
+	      villainGroups[vilCountUp] = mastermind.alwaysLeads;
+          vilCountUp = vilCountUp + 1;
+	      mastermind.alwaysLeadsType = "0";
+	      villainGCount = villainGCount - 1;
+	    }
+	    //if not, random, runs until all villains are selected
+	    else{
 		  newVillain = getVillainGroup();
-		  //check for duplicate
-		  for (var i = 0; i < vilCountUp; i++){
-		    if (newVillain.villainName == villainGroups[i]){
-			  continue doLoopVillains;
-			}
-		  }
-		  villainGroups[vilCountUp] = newVillain.villainName;
-		  shards = shards + newVillain.Vshards;
-		  villainGCount = villainGCount - 1;
+	      //check for duplicate or banned villains
+	      for (var i = 0; i < vilCountUp; i++){
+	        if (newVillain.villainName == villainGroups[i] || newVillain.villainName == scheme.bannedVillain){
+	          continue doLoopVillains;
+	        }
+	      }
+	      villainGroups[vilCountUp] = newVillain.villainName;
+	      vilCountUp = vilCountUp + 1;
+	      shards = shards + newVillain.Vshards;
+	      villainGCount = villainGCount - 1;
 		}
-		
-		//move to next position in array
-        vilCountUp = vilCountUp + 1;
-	  }
+      }
       while (villainGCount > 0);
       
 	  //alphabetize villain groups, ignoring any 'The' at the start of the names
@@ -182,71 +159,46 @@
 	  //do loop for getting random henchmen, alwaysLeads, scheme henchmen, making sure there are no duplicates
 	  doLoopHenchmen:
       do{
-	    //first henchmen should be any scheme henchmen
-		if (henchCountUp == 0){
-		  if (scheme.schemeVillainType == "h"){
-		    henchmenGroups[henchCountUp] = scheme.schemeVillainGroup;
-			scheme.schemeVillainType = "0";
-		    henchmenGCount = henchmenGCount - 1;
-		  }
-		  //if not, should be alwaysLeads
-		  else if (mastermind.alwaysLeadsType == "h"){
-		    henchmenGroups[henchCountUp] = mastermind.alwaysLeads;
-			mastermind.alwaysLeadsType = "0";
-			henchmenGCount = henchmenGCount - 1;
-		  }
-		  //if not, random
-		  else{
-		    newHenchmen = getHenchmenGroup();
-			//check for banned henchmen
-			if (newHenchmen.henchmenName == scheme.bannedHenchmen){
-			  continue doLoopHenchmen;
-			}
-			henchmenGroups[henchCountUp] = newHenchmen.henchmenName;
-			henchmenGCount = henchmenGCount - 1;
-		  }
-		}
-		//second henchmen should be alwaysLeads if not already used
-		else if (henchCountUp == 1){
-		  if (mastermind.alwaysLeadsType == "h"){
-		    //check for duplicate or banned
-			if (mastermind.alwaysLeads == henchmenGroups[0] || mastermind.alwaysLeads == scheme.bannedHenchmen){
-			  mastermind.alwaysLeads = "0";
-			  continue doLoopHenchmen;
-			}
-			else{
-			  henchmenGroups[henchCountUp] = mastermind.alwaysLeads;
-			  mastermind.alwaysLeads = "0";
-			  henchmenGCount = henchmenGCount - 1;
-			}
-		  }
-		  //random group
-		  else{
-		    newHenchmen = getHenchmenGroup();
-			//check for duplicate or banned
-			if (newHenchmen.henchmenName == henchmenGroups[0] || newHenchmen.henchmenName == scheme.bannedHenchmen){
-			  continue doLoopHenchmen;
-			}
-		    henchmenGroups[henchCountUp] = newHenchmen.henchmenName;
-			henchmenGCount = henchmenGCount - 1;
-		  }
-		}
-		//final henchmen assigner, which will be run until all HGs are selected
-		else{
+        //checks for any scheme henchmen and assigns those first
+        if (scheme.schemeVillainGroupNo > 0){
+	      for (var i = 0; i < scheme.schemeVillainGroupNo; i++){
+	        if (scheme.schemeVillainType[i] == "h"){
+		      henchmenGroups[henchCountUp] = scheme.schemeVillainGroup[i];
+		      henchCountUp = henchCountUp + 1;
+		      scheme.schemeVillainType[i] = "0";
+		      henchmenGCount = henchmenGCount - 1;
+		    }
+	      }
+	      scheme.schemeVillainGroupNo = 0;
+	    }
+	    //checks if alwaysLeads is a henchmen and assigns
+        else if (mastermind.alwaysLeadsType == "h"){
+	      //check for duplicate or banned
+	      for (var i = 0; i < henchCountUp; i++){
+	        if (mastermind.alwaysLeads == henchmenGroups[i] || mastermind.alwaysLeads == scheme.bannedHenchmen){
+	          mastermind.alwaysLeadsType = "0";
+		      continue doLoopHenchmen;
+	        }
+	      }
+	      henchmenGroups[henchCountUp] = mastermind.alwaysLeads;
+          henchCountUp = henchCountUp + 1;
+	      mastermind.alwaysLeadsType = "0";
+	      henchmenGCount = henchmenGCount - 1;
+	    }
+	    //if not, random, runs until all henchmen are selected
+	    else{
 		  newHenchmen = getHenchmenGroup();
-		  //check for duplicate or banned
-		  for (var i = 0; i < henchCountUp; i++){
-		    if (newHenchmen.henchmenName == henchmenGroups[i] || newHenchmen.henchmenName == scheme.bannedHenchmen){
-			  continue doLoopHenchmen;
-			}
-		  }
-		  henchmenGroups[henchCountUp] = newHenchmen.henchmenName;
-		  henchmenGCount = henchmenGCount - 1;
+	      //check for duplicate or banned henchmen
+	      for (var i = 0; i < henchCountUp; i++){
+	        if (newHenchmen.henchmenName == henchmenGroups[i] || newHenchmen.henchmenName == scheme.bannedHenchmen){
+	          continue doLoopHenchmen;
+	        }
+	      }
+	      henchmenGroups[henchCountUp] = newHenchmen.henchmenName;
+	      henchCountUp = henchCountUp + 1;
+	      henchmenGCount = henchmenGCount - 1;
 		}
-		
-		//move to next position in array
-        henchCountUp = henchCountUp + 1;
-	  }
+      }
       while (henchmenGCount > 0);
       
 	  //alphabetize henchmen groups, ignoring any 'The' at the start of the names
@@ -453,7 +405,7 @@
 	  
 	  //gets the random mastermind
 	  function getMastermind(){
-	    var mastermindNum = getRndInteger(1, 11);
+	    var mastermindNum = getRndInteger(1, 17);
 		
 		var mastermindName;
 		var alwaysLeads;
@@ -525,9 +477,41 @@
 		  alwaysLeadsType = "v";
 		}
 		
-		//villains masterminds
+		//villains commanders
+		else if (mastermindNum == 12){
+		  mastermindName = "Dr. Strange";
+		  alwaysLeads = "Defenders";
+		  alwaysLeadsType = "v";
+		}
+		else if (mastermindNum == 13){
+		  mastermindName = "Nick Fury";
+		  alwaysLeads = "Avengers";
+		  alwaysLeadsType = "v";
+		}
+		else if (mastermindNum == 14){
+		  mastermindName = "Odin";
+		  alwaysLeads = "Asgardian Warrior";
+		  alwaysLeadsType = "h";
+		}
+		else if (mastermindNum == 15){
+		  mastermindName = "Professor X";
+		  alwaysLeads = "X-Men First Class";
+		  alwaysLeadsType = "v";
+		}
 		
 		//guardians of the galaxy masterminds
+		else if (mastermindNum == 16){
+		  mastermindName = "Supreme Intelligence of the Kree";
+		  alwaysLeads = "Kree Starforce";
+		  alwaysLeadsType = "v";
+		  MMshards = 1;
+		}
+		else if (mastermindNum == 17){
+		  mastermindName = "Thanos";
+		  alwaysLeads = "Infinity Gems";
+		  alwaysLeadsType = "v";
+		  MMshards = 1;
+		}
 		
 		//3d masterminds
 		
@@ -573,7 +557,7 @@
 	
 	  //gets the random scheme
 	  function getScheme(playerCount){
-	    var schemeNum = getRndInteger(1, 20);
+	    var schemeNum = getRndInteger(1, 32);
 		
 		var schemeName;
 		var schemeTwists;
@@ -586,14 +570,16 @@
 		var needsHenchemenGroups = 0; //needs an additional henchmen group
 		var needsHeroDecks = 0;  //needs an additional hero deck, or less
 		
-		var schemeVillainGroup;  //needs a specific villain or henchmen group
-		var schemeVillainType;
+		var schemeVillainGroup = new Array(2);  //needs a specific villain or henchmen group
+		var schemeVillainType = new Array(2);
+		var schemeVillainGroupNo = 0;
 		
 		var schemeHero = 0; //needs a specific hero deck
 		var schemeHeroName;
 		
 		var bannedHero = "0"; //bans a specific hero from the hero deck
 		var bannedHenchmen = "0"; //bans a specific henchmen group from the villain deck
+		var bannedVillain = "0"; //bans a specific villain group from the villain deck
 		
 		//base game schemes
 		if (schemeNum == 1){
@@ -626,8 +612,9 @@
 		  schemeName = "Secret Invasion of the Skrull Shapeshifters";
 		  schemeTwists = 8;
 		  needsHeroDecks = 1;
-		  schemeVillainGroup = "Skrulls";
-		  schemeVillainType = "v";
+		  schemeVillainGroupNo = 1;
+		  schemeVillainGroup[0] = "Skrulls";
+		  schemeVillainType[0] = "v";
 		  schemeRules = "Shuffle 12 random Heroes from the Hero Deck into the Villain Deck.";
 		}
 		else if (schemeNum == 7){
@@ -665,8 +652,9 @@
 		else if (schemeNum == 12){
 		  schemeName = "Organized Crimewave";
 		  schemeTwists = 8;
-		  schemeVillainGroup = "Maggia Goons";
-		  schemeVillainType = "h";
+		  schemeVillainGroupNo = 1;
+		  schemeVillainGroup[0] = "Maggia Goons";
+		  schemeVillainType[0] = "h";
 		}
 		else if (schemeNum == 13){
 		  schemeName = "Save Humanity";
@@ -717,17 +705,92 @@
 		else if (schemeNum == 19){
 		  schemeName = "Splice Humans with Spider DNA";
 		  schemeTwists = 8;
-		  schemeVillainGroup = "Sinister Six";
-		  schemeVillainType = "v";
+		  schemeVillainGroupNo = 1;
+		  schemeVillainGroup[0] = "Sinister Six";
+		  schemeVillainType[0] = "v";
 		}
 		else if (schemeNum == 20){
 		  schemeName = "Weave a Web of Lies";
 		  schemeTwists = 7;
 		}
 		
-		//villains schemes
+		//villains plots
+		else if (schemeNum == 21){
+		  schemeName = "Build an Underground Mega-Vault Prison";
+		  schemeTwists = 8;
+		  schemeRules = "The Bindings stack holds " + 5 * playerCount + " Bindings.";
+		}
+		else if (schemeNum == 22){
+		  schemeName = "Cage Villains in Power-Suppressing Cells";
+		  schemeTwists = 8;
+		  schemeRules = "Stack " + 2 * playerCount + " Cops from the Henchmen Villain Group next to the Scheme.";
+		  bannedHenchmen = "Cops";
+		}
+		else if (schemeNum == 23){
+		  schemeName = "Crown Thor King of Asgard";
+		  schemeTwists = 8;
+		  schemeRules = "Put the Thor Villain card from the Avengers Villain Group next to the Scheme.";
+		  bannedVillain = "Avengers";
+		}
+		else if (schemeNum == 24){
+		  schemeName = "Crush HYDRA";
+		  schemeTwists = 8;
+		}
+		else if (schemeNum == 25){
+		  schemeName = "Graduation at Xavier's X-Academy";
+		  schemeTwists = 8;
+		  schemeRules = "Stack 8 Bystanders next to the Scheme as Young Mutants.";
+		}
+		else if (schemeNum == 26){
+		  schemeName = "Infiltrate the Lair with Spies";
+		  schemeTwists = 8;
+		  schemeRules = "Stack 21 Bystanders next to the Scheme as Infiltrating Spies.";
+		}
+		else if (schemeNum == 27){
+		  schemeName = "Mass Produce War Machine Armor";
+		  schemeTwists = 8;
+		  schemeVillainGroupNo = 1;
+		  schemeVillainGroup[0] = "S.H.I.E.L.D. Assault Squad";
+		  schemeVillainType[0] = "h";
+		}
+		else if (schemeNum == 28){
+		  schemeName = "Resurrect Heroes with the Norn Stones";
+		  schemeTwists = 8;
+		}
 		
 		//guardians of the galaxy schemes
+		else if (schemeNum == 29){
+		  schemeName = "Forge the Infinity Gauntlet";
+		  schemeTwists = 8;
+		  schemeVillainGroupNo = 1;
+		  schemeVillainGroup[0] = "Infinity Gems";
+		  schemeVillainType[0] = "v";
+		  Sshards = 1;
+		}
+		else if (schemeNum == 30){
+		  schemeName = "Intergalactic Kree Nega-Bomb";
+		  schemeTwists = 8;
+		  schemeRules = "Make a face down Nega-Bomb Deck of 6 Bystanders.";
+		}
+		else if (schemeNum == 31){
+		  schemeName = "The Kree-Skrull War";
+		  schemeTwists = 8;
+		  if (playerCount == 1){
+		    needsVillainGroups = 1;
+		  }
+		  schemeVillainGroupNo = 2;
+		  schemeVillainGroup[0] = "Kree Starforce";
+		  schemeVillainGroup[1] = "Skrulls";
+		  schemeVillainType[0] = "v";
+		  schemeVillainType[1] = "v";
+		  Sshards = 1;
+		}
+		else if (schemeNum == 32){
+		  schemeName = "Unite the Shards";
+		  schemeTwists = (5 + playerCount*1);
+		  Sshards = 1;
+		  schemeRules = "Only have a maximum of 30 Shards in the supply.";
+		}
 		
 		//3d schemes
 		
@@ -774,16 +837,18 @@
           needsHeroDecks: needsHeroDecks,
           schemeVillainGroup: schemeVillainGroup,
           schemeVillainType: schemeVillainType,
+		  schemeVillainGroupNo: schemeVillainGroupNo,
           schemeHero: schemeHero,
           schemeHeroName: schemeHeroName,
           bannedHero: bannedHero,
-          bannedHenchmen: bannedHenchmen		  
+          bannedHenchmen: bannedHenchmen,
+          bannedVillain: bannedVillain		  
 		};
 	  }
 	
 	  //gets the random villain groups
 	  function getVillainGroup(){
-	    var villainNum = getRndInteger(1, 15);
+	    var villainNum = getRndInteger(1, 24);
 		
 		var villainName;
 		
@@ -843,9 +908,38 @@
 		  villainName = "Sinister Six";
 		}
 		
-		//villains villain groups
+		//villains adversary groups
+		else if (villainNum == 16){
+		  villainName = "Avengers";
+		}
+		else if (villainNum == 17){
+		  villainName = "Defenders";
+		}
+		else if (villainNum == 18){
+		  villainName = "Marvel Knights";
+		}
+		else if (villainNum == 19){
+		  villainName = "Spider-Friends";
+		}
+		else if (villainNum == 20){
+		  villainName = "Uncanny Avengers";
+		}
+		else if (villainNum == 21){
+		  villainName = "Uncanny X-Men";
+		}
+		else if (villainNum == 22){
+		  villainName = "X-Men First Class";
+		}
 		
 		//guardians of the galaxy villain groups
+		else if (villainNum == 23){
+		  villainName = "Infinity Gems";
+		  Vshards = 1;
+		}
+		else if (villainNum == 24){
+		  villainName = "Kree Starforce";
+		  Vshards = 1;
+		}
 		
 		//3d villain groups
 		
@@ -889,7 +983,7 @@
 	
 	  //gets the random henchmen groups
 	  function getHenchmenGroup(){
-	    var henchmenNum = getRndInteger(1, 6);
+	    var henchmenNum = getRndInteger(1, 10);
 		
 		var henchmenName;
 		
@@ -917,9 +1011,19 @@
 		
 		//fantastic four henchmen groups
 		
-		//villains henchmen groups
-		
-		//guardians of the galaxy henchmen groups
+		//villains backup groups
+		else if (henchmenNum == 7){
+		  henchmenName = "Asgardian Warrior";
+		}
+		else if (henchmenNum == 8){
+		  henchmenName = "Cops";
+		}
+		else if (henchmenNum == 9){
+		  henchmenName = "Multiple Man";
+		}
+		else if (henchmenNum == 10){
+		  henchmenName = "S.H.I.E.L.D. Assault Squad";
+		}
 		
 		//3d henchmen groups
 		
@@ -962,7 +1066,7 @@
 	
 	  //gets the random hero decks
 	  function getHeroes(){
-	    var heroNum = getRndInteger(1, 37);
+	    var heroNum = getRndInteger(1, 57);
 		
 		var heroName;
 		
@@ -1088,9 +1192,74 @@
 		  heroName = "Symbiote Spider-Man";
 		}
 		
-		//villains hero decks
+		//villains ally decks
+		else if (heroNum == 38){
+		  heroName = "Bullseye";
+		}
+		else if (heroNum == 39){
+		  heroName = "Dr. Octopus";
+		}
+		else if (heroNum == 40){
+		  heroName = "Electro";
+		}
+		else if (heroNum == 41){
+		  heroName = "Enchantress";
+		}
+		else if (heroNum == 42){
+		  heroName = "Green Goblin";
+		}
+		else if (heroNum == 43){
+		  heroName = "Juggernaut";
+		}
+		else if (heroNum == 44){
+		  heroName = "Kingpin";
+		}
+		else if (heroNum == 45){
+		  heroName = "Kraven";
+		}
+		else if (heroNum == 46){
+		  heroName = "Loki";
+		}
+		else if (heroNum == 47){
+		  heroName = "Magneto";
+		}
+		else if (heroNum == 48){
+		  heroName = "Mysterio";
+		}
+		else if (heroNum == 49){
+		  heroName = "Mystique";
+		}
+		else if (heroNum == 50){
+		  heroName = "Sabretooth";
+		}
+		else if (heroNum == 51){
+		  heroName = "Ultron";
+		}
+		else if (heroNum == 52){
+		  heroName = "Venom";
+		}
 		
 		//guardians of the galaxy hero decks
+		else if (heroNum == 53){
+		  heroName = "Drax the Destroyer";
+		  HeroShards = 1;
+		}
+		else if (heroNum == 54){
+		  heroName = "Gamora";
+		  HeroShards = 1;
+		}
+		else if (heroNum == 55){
+		  heroName = "Groot";
+		  HeroShards = 1;
+		}
+		else if (heroNum == 56){
+		  heroName = "Rocket Raccoon";
+		  HeroShards = 1;
+		}
+		else if (heroNum == 57){
+		  heroName = "Star-Lord";
+		  HeroShards = 1;
+		}
 		
 		//3d hero decks
 		
@@ -1120,7 +1289,7 @@
 		
 		//ant-man hero decks
 		
-		//venom hero decks
+		//venom hero decks0
 		
 		else{
 		  document.write("Something went wrong when selecting a random number for the hero decks.<br>");
